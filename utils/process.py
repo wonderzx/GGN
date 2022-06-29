@@ -110,6 +110,9 @@ def constructor_evaluator(gumbel_generator, tests, obj_matrix, sz):
         # 计算net error
         out_matrix = gumbel_generator.sample()
         out_matrix_c = 1.0*(torch.sign(out_matrix-1/2)+1)/2
+        out_matrix_c = out_matrix_c.cuda() if use_cuda else out_matrix_c
+        sz = sz.cuda() if use_cuda else sz
+        obj_matrix = obj_matrix.cuda() if use_cuda else obj_matrix
         err = torch.sum(torch.abs(out_matrix_c * get_offdiag(sz) - obj_matrix * get_offdiag(sz))) # 计算时不考虑对角元素
         err = err.cpu() if use_cuda else err
         errs.append(err.data.numpy())
