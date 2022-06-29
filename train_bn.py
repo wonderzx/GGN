@@ -149,6 +149,7 @@ standard_adj = torch.Tensor(edges_train)
 now = datetime.datetime.now()
 timestamp = now.isoformat()
 save_folder = '{}/exp{}/'.format('./logs', timestamp)
+save_folder = save_folder.replace(':',';')
 os.mkdir(save_folder)
 
 # saving path

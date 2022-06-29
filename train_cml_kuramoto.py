@@ -1,3 +1,4 @@
+import datetime
 import matplotlib
 matplotlib.use('Agg')
 import pickle
@@ -82,7 +83,7 @@ def train_gumbel(args, dynamics_learner, gumbel_generator, optimizer_network,
 
 
 
-def test(args, dynamics_learner, gumbel_generator, device, test_loader, object_matrix, experiment,skip_conn):
+def ceshi1(args, dynamics_learner, gumbel_generator, device, test_loader, object_matrix, experiment,skip_conn):
     # load model
     dynamics_learner.load_state_dict(torch.load(args.dynamics_path))
     gumbel_generator.load_state_dict(torch.load(args.gumbel_path))
@@ -187,9 +188,11 @@ def main():
             print('\nCurrent best epoch: %d, best val loss: %f' % (best_epoch, best_val_loss))
 
         print('\nBest epoch: %d' % best_epoch)
-        test(args, dynamics_learner, gumbel_generator, device, test_loader, object_matrix, experiment,args.skip)
+        ceshi1(args, dynamics_learner, gumbel_generator, device, test_loader, object_matrix, experiment,args.skip)
 
 
 if __name__ == '__main__':
+    print(datetime.datetime.now())
     main()
+    print(datetime.datetime.now())
 

@@ -583,7 +583,7 @@ def distance_grow(dg,time):
 	plt.plot(avg_change_far[:Draw_Grow_Step])
 	plt.xlabel('time')
 	plt.ylabel('hm dis from far')
-	plt.savefig(Store_Folder + 'mark-'+str(mark)+'-hm_distance_change-'+'n:'+str(N_Node)+'-k:'+str(Average_Degree)+'.png')
+	plt.savefig(Store_Folder + 'mark-'+str(mark)+'-hm_distance_change-'+'n;'+str(N_Node)+'-k;'+str(Average_Degree)+'.png')
 
 
 

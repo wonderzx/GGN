@@ -4,6 +4,8 @@ import argparse
 import torch
 import numpy as np
 import pickle
+import os
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
 use_cuda = torch.cuda.is_available()
