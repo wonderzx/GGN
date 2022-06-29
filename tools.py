@@ -54,7 +54,7 @@ def constructor_evaluator(gumbel_generator, tests, obj_matrix, sz):
     return err_net
 
 def constructor_evaluator_withdiag(gumbel_generator, tests, obj_matrix):
-    # obj_matrix = obj_matrix.cuda()
+    obj_matrix = obj_matrix.cuda()
     sz = obj_matrix.size(0)
     errs= []
     for t in range(tests):
