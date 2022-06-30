@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import random
 import math
 import pickle
+import json
 
 
 
@@ -715,6 +716,7 @@ print(all_data.shape)
 
 # save the data
 # save time series data
+
 serise_address = Store_Folder + 'mark-'+str(mark)+'-series.pickle'
 with open(serise_address,'wb') as f:
 	pickle.dump(all_data,f)
@@ -725,13 +727,20 @@ adj_address = Store_Folder + 'mark-'+str(mark)+'-adjmat.pickle'
 with open(adj_address,'wb') as f:
 	pickle.dump(adj,f)
 
+print("adj:")
+print(list(list(adj)))
+print("serise_address:")
+print(all_data)
+# list_adj = dict('adj',list(list(adj)))
+# list_serise = dict('series',list(all_data))
+# print(list_adj)
 
 
 # save andlyze of the data
 if Init_Way == 'all':
-	info_address = Store_Folder + 'mark-'+str(mark)+'-average_degree'+str(Average_Degree)+'-'+G_Type+'-analyze-step:'+str(all_data.shape[0])+'-node:'+str(all_data.shape[1])+'-dyn:'+DYN+'-num_of_basin'+str(analyze_res[0])+'-num_of_attractor'+str(analyze_res[1])+'-num_of_point'+str(analyze_res[2])+'-ave_cycle_len'+str(analyze_res[3])+'.pickle'
+	info_address = Store_Folder + 'mark-'+str(mark)+'-average_degree'+str(Average_Degree)+'-'+G_Type+'-analyze-step;'+str(all_data.shape[0])+'-node;'+str(all_data.shape[1])+'-dyn;'+DYN+'-num_of_basin'+str(analyze_res[0])+'-num_of_attractor'+str(analyze_res[1])+'-num_of_point'+str(analyze_res[2])+'-ave_cycle_len'+str(analyze_res[3])+'.pickle'
 elif Init_Way == 'random':
-	info_address = Store_Folder + 'mark-'+str(mark)+'-average_degree'+str(Average_Degree)+'-'+G_Type+'-analyze-step:'+str(all_data.shape[0])+'-node:'+str(all_data.shape[1])+'-dyn:'+DYN+'.pickle'
+	info_address = Store_Folder + 'mark-'+str(mark)+'-average_degree'+str(Average_Degree)+'-'+G_Type+'-analyze-step;'+str(all_data.shape[0])+'-node;'+str(all_data.shape[1])+'-dyn;'+DYN+'.pickle'
 
 
 with open(info_address,'wb') as f:
