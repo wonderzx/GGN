@@ -37,9 +37,8 @@ def directed_graph(source, title):
     # weight classify
     for i in [0, 20, 40, 60, 80]:
         ii = i / 100
-        namespace['E%d' % (i)] = [
-            (u, v) for (u, v, d) in G1.edges(data=True
-                                             ) if (d['weight'] >= ii) & (d['weight'] < ii + 0.2)]
+        # namespace['E%d' % (i)] = [(u, v) for (u, v, d) in G1.edges(data=True) if (d['weight'] >= ii) & (d['weight'] < ii + 0.2)]
+        namespace['E%d' % (i)] = [(u, v) for (u, v, d) in G1.edges(data=True)]
 
     # position
     pos = nx.shell_layout(G1)

@@ -31,16 +31,26 @@ def np_adj_to_txt_link(adj):
 		f.write(link_str.encode())
 		f.close()
 
-def np_adj_to_df_link(adj):
+def np_adj_to_df_link(adj, node_label='code'):
+	"""
+	为了环形可视化的数据需求
+	"""
 	node_from_list = []
 	node2_to_list = []
 	edge_weight_list = []
 	for node1,node1_list in enumerate(adj):
 		for node2,edge_weight in enumerate(node1_list):
-			if abs(edge_weight)>0:
-				node_from_list.append(node1)
-				node2_to_list.append(node2)
-				edge_weight_list.append(edge_weight*random.random())
+			if abs(edge_weight) > 0:
+				if node_label == 'index':
+					node_from_list.append(node1)
+					node2_to_list.append(node2)
+				if node_label == 'code':
+					node_from_list.append(node1)
+					node2_to_list.append(node2)
+				if node_label == 'name':
+					node_from_list.append(node1)
+					node2_to_list.append(node2)
+				edge_weight_list.append(edge_weight)
 	df = pd.DataFrame()
 	df['ind1'] = node_from_list
 	df['ind2'] = node2_to_list

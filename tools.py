@@ -122,23 +122,18 @@ def weighted(data, v_x_ratio):
 
 
 
-def load_bn_ggn(batch_size = 128,dyn_type='table'):
-
-    # address
-    series_address = './data/bn/mark-13826-adjmat.pickle'
-    adj_address = './data/bn/mark-13826-series.pickle'
+def load_bn_ggn(batch_size = 128,dyn_type='table', adj_address = './data/bn/mark-13826-adjmat.pickle', series_address = './data/bn/mark-13826-series.pickle'):
 
     # 5/7 for training, 1/7 for validation and 1/7 for test
     use_state = 1024
-
-
     # adj mat
-    with open(series_address,'rb') as f:
+    with open(adj_address,'rb') as f:
         edges = pickle.load(f,encoding='latin1')
     # time series data
-    with open(adj_address,'rb') as f:
+    with open(series_address,'rb') as f:
         info_train = pickle.load(f,encoding='latin1')
-
+    if type(info_train)==list:
+        info_train = np.array(info_train)
     # if too large...
     if info_train.shape[0] > 100000:
         info_train = info_train[:100000]
@@ -148,7 +143,7 @@ def load_bn_ggn(batch_size = 128,dyn_type='table'):
     while len(has_loaded) < use_state:
         # if dyn type == table then we have to make sure that each state we load is different
         if dyn_type == 'table':
-            # print(i)
+            print(i,len(has_loaded) )
             if info_train_list[i] not in has_loaded:
                 has_loaded.append(info_train_list[i])
             i = i+2
