@@ -31,10 +31,12 @@ def np_adj_to_txt_link(adj):
 		f.write(link_str.encode())
 		f.close()
 
-def np_adj_to_df_link(adj, node_label='code'):
+def np_adj_to_df_link(adj, node_label='code',stock_dict={}):
 	"""
 	为了环形可视化的数据需求
 	"""
+	code_list = list(stock_dict.keys())
+	name_list = list(stock_dict.values())
 	node_from_list = []
 	node2_to_list = []
 	edge_weight_list = []
@@ -45,33 +47,34 @@ def np_adj_to_df_link(adj, node_label='code'):
 					node_from_list.append(node1)
 					node2_to_list.append(node2)
 				if node_label == 'code':
-					node_from_list.append(node1)
-					node2_to_list.append(node2)
+					node_from_list.append(code_list[node1])
+					node2_to_list.append(code_list[node2])
 				if node_label == 'name':
-					node_from_list.append(node1)
-					node2_to_list.append(node2)
+					node_from_list.append(name_list[node1])
+					node2_to_list.append(name_list[node2])
 				edge_weight_list.append(edge_weight)
 	df = pd.DataFrame()
 	df['ind1'] = node_from_list
 	df['ind2'] = node2_to_list
 	df['C'] = edge_weight_list
 	df.index = range(1,len(node_from_list)+1)
-	df.to_csv('np_adj_to_df_link.csv')
+	df.to_csv('np_adj_to_df_link.csv',encoding='utf-8')
 
 
-adj_path = './data/bn/mark-13826-adjmat.pickle'
-# adj_path = './logs/exp2022-06-29T22;04;51.240862/standard_adj.pickle'
-with open(adj_path,'rb') as f:
-	adj_matrix = pickle.load(f)
+if __name__ == '__main__':
+	adj_path = './data/bn/mark-13826-adjmat.pickle'
+	# adj_path = './logs/exp2022-06-29T22;04;51.240862/standard_adj.pickle'
+	with open(adj_path,'rb') as f:
+		adj_matrix = pickle.load(f)
 
-# G = nx.from_numpy_array(adj_matrix)
-G = nx.from_numpy_matrix(adj_matrix, create_using=nx.DiGraph)
+	# G = nx.from_numpy_array(adj_matrix)
+	G = nx.from_numpy_matrix(adj_matrix, create_using=nx.DiGraph)
 
-subax1 = plt.subplot(121)
-nx.draw(G, with_labels=True, font_weight='bold')
-subax2 = plt.subplot(122)
-nx.draw_shell(G, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
-nx.draw(G,pos = nx.drawing.layout.spring_layout(G),node_color='#0000CD', edge_color='#000000',width=0.01, node_size = 0.5,edge_cmap=plt.cm.gray, with_labels=False)
-plt.savefig('stockNet.png',dpi=500,bbox_inches = 'tight', facecolor='white', edgecolor='red')
-plt.show()
+	subax1 = plt.subplot(121)
+	nx.draw(G, with_labels=True, font_weight='bold')
+	subax2 = plt.subplot(122)
+	nx.draw_shell(G, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
+	nx.draw(G,pos = nx.drawing.layout.spring_layout(G),node_color='#0000CD', edge_color='#000000',width=0.01, node_size = 0.5,edge_cmap=plt.cm.gray, with_labels=False)
+	plt.savefig('stockNet.png',dpi=500,bbox_inches = 'tight', facecolor='white', edgecolor='red')
+	plt.show()
 

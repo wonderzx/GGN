@@ -188,6 +188,6 @@ if __name__ == '__main__':
     do = TdxDataPreprocesser()
     new_stock_dict = do.get_stock_list()
     code_list = list(new_stock_dict.keys())
-    do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end)
-    # do.pickle_to_boolean_net_series(code_list, start, end)
+    # do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end)
+    do.pickle_to_boolean_net_series(code_list, start, end)
     # do.tdx_data_to_pickle_files()

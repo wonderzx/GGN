@@ -22,7 +22,7 @@ import pandas as pd
 namespace = globals()
 
 
-def directed_graph(source, title):
+def directed_graph(source, title,has_weight=False):
     # graph type
     G1 = nx.DiGraph()
     source = source.reset_index(drop=True)
@@ -37,8 +37,11 @@ def directed_graph(source, title):
     # weight classify
     for i in [0, 20, 40, 60, 80]:
         ii = i / 100
-        # namespace['E%d' % (i)] = [(u, v) for (u, v, d) in G1.edges(data=True) if (d['weight'] >= ii) & (d['weight'] < ii + 0.2)]
-        namespace['E%d' % (i)] = [(u, v) for (u, v, d) in G1.edges(data=True)]
+        if has_weight :
+            namespace['E%d' % (i)] = [(u, v) for (u, v, d) in G1.edges(data=True) if (d['weight'] >= ii) & (d['weight'] < ii + 0.2)]
+        # 有权重
+        else:
+            namespace['E%d' % (i)] = [(u, v) for (u, v, d) in G1.edges(data=True)] # 无权重
 
     # position
     pos = nx.shell_layout(G1)
@@ -67,6 +70,6 @@ def directed_graph(source, title):
     plt.savefig(title + ".png")
 
 
-# %%
-df = pd.read_csv("./data/np_adj_to_df_link.csv")
-directed_graph(df, 'C')
+if __name__ == '__main__':
+    df = pd.read_csv("./np_adj_to_df_link.csv")
+    directed_graph(df, 'C')
