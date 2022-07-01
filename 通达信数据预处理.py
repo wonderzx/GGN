@@ -177,7 +177,7 @@ class TdxDataPreprocesser():
             json.dump(boolean_dict, f, indent=2, sort_keys=True, ensure_ascii=False)  # 写为多行
             f.close()
         with open(self.boolean_network_data_folder + 'bn.pickle', 'wb') as f:
-            pickle.dump(boolean_dict['boolean_net'], f)
+            pickle.dump(boolean_dict['boolean_series'], f)
             f.close()
         print('boolean_net creating processed!')
 
