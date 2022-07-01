@@ -184,10 +184,10 @@ class TdxDataPreprocesser():
 
 if __name__ == '__main__':
     # code_list=['000001', '000002', '600601', '000012', '600612', '600651', '000009', '000568', '600660', '000004']
-    start='2021/5/30';end='2022/5/30'
+    start='1990/5/30';end='2022/5/30'
     do = TdxDataPreprocesser()
     new_stock_dict = do.get_stock_list()
     code_list = list(new_stock_dict.keys())
-    # do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end)
+    do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end)
     do.pickle_to_boolean_net_series(code_list, start, end)
     # do.tdx_data_to_pickle_files()

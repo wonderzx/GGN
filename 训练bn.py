@@ -33,7 +33,7 @@ parser.add_argument('--seed', type=int, default=2050,
                     help='random seed (default: 2050)')
 parser.add_argument('--prediction-steps', type=int, default=1,
                     help='prediction steps in data (default: 10)')
-parser.add_argument('--dyn-type', type=str, default='table',
+parser.add_argument('--dyn-type', type=str, default='prob',
                     help='different kind of dynamics(table and prob)(default:table)')
 
 args = parser.parse_args()
@@ -49,7 +49,7 @@ Dyn_Type = args.dyn_type
 
 print("Data Loading...")
 # get data
-train_data_loader, valid_data_loader, test_data_loader, edges_train = load_bn_ggn(batch_size=Batch_Size,dyn_type='prob', adj_address = './data/bn/mark-13826-adjmat.pickle', series_address = './bn_json/bn.pickle')
+train_data_loader, valid_data_loader, test_data_loader, edges_train = load_bn_ggn(batch_size=Batch_Size,dyn_type=Dyn_Type, adj_address = './bn_json/AP-adjmat.pickle', series_address = './bn_json/bn.pickle')
 print('train set batch num : ' + str(len(train_data_loader)))
 print('val set batch num : ' + str(len(valid_data_loader)))
 print('test set batch num : ' + str(len(test_data_loader)))
