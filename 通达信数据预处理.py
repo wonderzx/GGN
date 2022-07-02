@@ -95,7 +95,7 @@ class TdxDataPreprocesser():
         fig.show()
         fig.savefig('similarity_matrix.jpg', bbox_inches='tight',pad_inches=0.0)  # 去白边
 
-    def pickle_to_ap_bn_adj_matrix(self,stock_dict={},start='2020/2/20',end='2022/2/20'):
+    def pickle_to_ap_bn_adj_matrix(self,stock_dict={}, start='2020/2/20', end='2022/2/20', edge_orientation='to_center'):
         start_date = dt.datetime.strptime(start, '%Y/%m/%d')
         end_date = dt.datetime.strptime(end, '%Y/%m/%d')
         stock_code_np, stock_name_np = np.array(sorted(stock_dict.items())).T  # 将symbol_dict转换维（key,value）形式的列，并排序，然后转为2×50数组。最后进行拆包，返回两个numpy.array
@@ -132,7 +132,10 @@ class TdxDataPreprocesser():
         cluster_tree_matrix = np.zeros([col_num, col_num], float)  # col_num * col_num 的矩阵！
         for leaf_node, cluster_index in enumerate(labels):
             center_node = cluster_center[cluster_index]
-            cluster_tree_matrix[leaf_node][center_node] = 1
+            if edge_orientation == 'to_center':
+                cluster_tree_matrix[leaf_node][center_node] = 1
+            else:
+                cluster_tree_matrix[center_node][leaf_node] = 1
         print("iter times:",iter_times)
         print("A_matrix:",A_matrix)
         print("R_matirx:",R_matirx)
@@ -188,6 +191,6 @@ if __name__ == '__main__':
     do = TdxDataPreprocesser()
     new_stock_dict = do.get_stock_list()
     code_list = list(new_stock_dict.keys())
-    do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end)
-    do.pickle_to_boolean_net_series(code_list, start, end)
+    do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end,edge_orientation='to_leaf')
+    # do.pickle_to_boolean_net_series(code_list, start, end)
     # do.tdx_data_to_pickle_files()

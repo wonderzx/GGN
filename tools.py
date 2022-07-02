@@ -143,7 +143,7 @@ def load_bn_ggn(batch_size = 128,dyn_type='table', adj_address = './data/bn/mark
     while len(has_loaded) < use_state:
         # if dyn type == table then we have to make sure that each state we load is different
         if dyn_type == 'table':
-            print(i,len(has_loaded) )
+            # print(i,len(has_loaded) )
             if info_train_list[i] not in has_loaded:
                 has_loaded.append(info_train_list[i])
             i = i+2

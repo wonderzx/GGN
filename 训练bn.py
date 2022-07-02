@@ -45,7 +45,7 @@ Batch_Size = args.batch_size
 Dyn_Steps = args.dynamics_steps
 Net_Steps = args.reconstruct_steps
 # type of dynsmics
-Dyn_Type = args.dyn_type
+Dyn_Type = 'table'  # args.dyn_type
 
 print("Data Loading...")
 # get data
