@@ -4,6 +4,30 @@ import numpy as np
 import pandas as pd
 import pickle
 import random
+import pyttsx3
+import time
+
+
+def talkWith(engine, content):
+    """ 朗读内容 """
+    engine.say(content)
+    engine.runAndWait()
+
+
+def talkContent(content):
+    """ 朗读字符串内容 使用系统文字转语音 """
+
+    engine = pyttsx3.init()
+    # 设置朗读速度
+    engine.setProperty('rate', 160)
+    # 如果字符串过长 通过句号分隔 循环读取
+    if len(content) > 20:
+        con_list = content.split('。')
+        for item in con_list:
+            time.sleep(1)
+            talkWith(engine, item)
+    else:
+        talkWith(engine, content)
 
 def three_dim_np_to_list(np_array):
 	result = []
@@ -59,6 +83,27 @@ def np_adj_to_df_link(adj, node_label='code',stock_dict={}):
 	df['C'] = edge_weight_list
 	df.index = range(1,len(node_from_list)+1)
 	df.to_csv('np_adj_to_df_link.csv',encoding='utf-8')
+
+
+def plot3d_matrix_bar(matrix):
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='3d')
+	node_y = range(len(matrix))
+	for  node_y_k in node_y:
+		# Generate the random data for the y=k 'layer'.
+		node_x = np.arange(len(matrix))
+		zs = matrix[node_y_k]
+		# You can provide either a single color or an array with the same length as
+		# xs and ys. To demonstrate this, we color the first bar of each set cyan.
+		# Plot the bar graph given by xs and ys on the plane y=k with 80% opacity.
+		ax.bar(node_x, zs, zs=node_y_k, zdir='y', alpha=0.8)
+
+	ax.set_xlabel('X')
+	ax.set_ylabel('Y')
+	ax.set_zlabel('Z')
+	# On the y axis let's only label the discrete values that we have data for.
+	ax.set_yticks(node_y)
+	plt.show()
 
 
 if __name__ == '__main__':
