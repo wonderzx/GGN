@@ -22,6 +22,7 @@ class TdxDataPreprocesser():
         self.original_data_folder = './day/'
         self.preprocessed_data_folder = './tdx_pickle/'
         self.boolean_network_data_folder = './bn_json/'
+        self.vibrate__network_data_folder = './vibrate_json/'
         self.boolean_network_np = None
         self.vibrate_network_np = None
         self.vibrate_network_np_dict = {}
@@ -57,7 +58,8 @@ class TdxDataPreprocesser():
             # https://q.stock.sohu.com/cn/bk.shtml 所有板块在这里查看
             # resp = requests.get('https://q.stock.sohu.com/cn/bk_4507.shtml')  # 上证50
             # resp = requests.get('https://q.stock.sohu.com/cn/bk_4506.shtml')  # 上证380
-            resp = requests.get('https://q.stock.sohu.com/cn/bk_4489.shtml')# 融资融券
+            # resp = requests.get('https://q.stock.sohu.com/cn/bk_4489.shtml')# 融资融券
+            resp = requests.get('https://q.stock.sohu.com/cn/bk_4839.shtml')  # 富时罗素
             resp.encoding = 'gb2312'
             soup = bs.BeautifulSoup(resp.text, 'lxml')
             table = soup.find('table', {'id': 'BIZ_MS_plstock'})
@@ -119,7 +121,7 @@ class TdxDataPreprocesser():
         print("averge in similarity_dis is %f" % np.average(similarity_dis))
         print("midnum in similarity_dis is %f" % np.median(similarity_dis))
         plt.bar(range(len(similarity_dis)),similarity_dis)
-        # plt.show()
+        plt.show()
 
     def plot_matrix(self,similarity_matrix):
         ax = sns.heatmap(similarity_matrix, cmap="YlGn",
@@ -165,7 +167,7 @@ class TdxDataPreprocesser():
         self.ap_cluster_result_dict = {'cluster_center': cluster_center, 'labels': labels, 'iter_times': iter_times,
                                   'A_matrix': A_matrix, 'R_matirx': R_matirx}
         n_labels = labels.max()  # 返回标签中的最大值，标签默认是数字递增形式的
-        with open("ap_cluster_result.txt",'w') as f:
+        with open("boolean_ap_cluster_result.txt",'w') as f:
             for i in range(n_labels + 1):
                 print('聚类类别 %i: %s ;;聚类中心是 %s' % ((i + 1), ', '.join(stock_name_np[labels == i]),stock_name_np[cluster_center[i]]))  # 列出聚类后分类信息
                 print('聚类类别 %i: %s ;;聚类中心是 %s\n' % ((i + 1),str(np.where(labels == i)), cluster_center[i]))  # 列出聚类后分类信息
@@ -194,10 +196,10 @@ class TdxDataPreprocesser():
         with open(adj_address, 'wb') as f:
             pickle.dump(cluster_tree_matrix, f)
             f.close()
-        with open(self.boolean_network_data_folder + 'ap_cluster_result_dict'+result_save_name+'.pickle',  'wb') as f:
+        with open(self.boolean_network_data_folder+ result_save_name + '-ap_boolean_cluster_result_dict.pickle',  'wb') as f:
             pickle.dump(self.ap_cluster_result_dict, f)
             f.close()
-        with open(self.boolean_network_data_folder + 'between_boolean_series_df.pickle', 'wb') as f:
+        with open(self.boolean_network_data_folder + result_save_name + '-between_boolean_series_df.pickle', 'wb') as f:
             pickle.dump(boolean_series, f)
             f.close()
 
@@ -274,7 +276,8 @@ class TdxDataPreprocesser():
         print('boolean_net creating processed!')
 
 
-    def pickle_to_ap_vibrate_adj_matrix(self,stock_dict={}, start='2020/2/20', end='2022/2/20', edge_orientation='to_center',inter_cluster_edge_exist=True):
+    def pickle_to_ap_vibrate_adj_matrix(self,stock_dict={}, start='2020/2/20', end='2022/2/20', edge_orientation='to_center'
+                                        ,inter_cluster_edge_exist=True,result_save_name='-rzrq-'):
         start_date = dt.datetime.strptime(start, '%Y/%m/%d')
         end_date = dt.datetime.strptime(end, '%Y/%m/%d')
         stock_code_np, stock_name_np = np.array(sorted(stock_dict.items())).T  # 将symbol_dict转换维（key,value）形式的列，并排序，然后转为2×50数组。最后进行拆包，返回两个numpy.array
@@ -292,26 +295,30 @@ class TdxDataPreprocesser():
                 vibrate_series[stock_code] = between_df['vibrate'].copy()
 
         vibrate_series.fillna(0, inplace=True)    # 没数据归为变化为0，放在这里因为在前面比较可以自动补充无数据，保持维度统一
-        vibrate_series = np.array(vibrate_series)[:, :, np.newaxis]
-        self.vibrate_network_np_dict = vibrate_series
-        boolean_dict['vibrate_series'] = vibrate_series
-        row_num = vibrate_series.shape[0]
-        col_num = vibrate_series.shape[1]
-        similarity_matrix = np.ones([col_num,col_num],float) # col_num * col_num 的矩阵！
-        for row_i, code1 in enumerate(stock_code_np):
-            for col_i, code2 in enumerate(stock_code_np):
-                same_series = (vibrate_series[code1] == vibrate_series[code2])
-                same_series = same_series.apply(lambda x: 1 if x else 0)
-                similarity = same_series.sum()
-                similarity_matrix[row_i][col_i] = similarity/row_num
-        self.plot_similarity_matrix(similarity_matrix)
-        print('similarity_matrix',similarity_matrix)
-        cluster_center, labels, iter_times, A_matrix, R_matirx = cluster.affinity_propagation(similarity_matrix,random_state=0, return_n_iter=True)  # 返回划分好的聚类中心的索引和聚类中心的标签
+        self.vibrate_network_np_dict['vibrate_series'] = vibrate_series.copy()
+        vibrate_series = np.array(vibrate_series)
+        # Learn a graphical structure from the correlations
+        edge_model = covariance.GraphicalLassoCV(cv=5)  # 实例化一个GraphicalLassoCV对象，关于Lasso见参考10，关于GraphicalLassoCV见参考14
+
+        # standardize the time series: using correlations rather than covariance
+        # is more efficient for structure recovery
+        X = vibrate_series.copy()
+        X /= X.std(axis=0)
+        edge_model.fit(X)
+        self.plot_similarity_matrix(edge_model.covariance_)
+        print('similarity_matrix',edge_model.covariance_)
+        cluster_center, labels, iter_times, A_matrix, R_matirx = cluster.affinity_propagation(edge_model.covariance_,random_state=0, return_n_iter=True)  # 返回划分好的聚类中心的索引和聚类中心的标签
         self.ap_cluster_result_dict = {'cluster_center': cluster_center, 'labels': labels, 'iter_times': iter_times,
                                   'A_matrix': A_matrix, 'R_matirx': R_matirx}
         n_labels = labels.max()  # 返回标签中的最大值，标签默认是数字递增形式的
-        for i in range(n_labels + 1):
-            print('聚类类别 %i: %s' % ((i + 1), ', '.join(stock_name_np[labels == i])))  # 列出聚类后分类信息
+        with open("vibrate_ap_cluster_result.txt",'w') as f:
+            for i in range(n_labels + 1):
+                print('聚类类别 %i: %s ;;聚类中心是 %s' % ((i + 1), ', '.join(stock_name_np[labels == i]),stock_name_np[cluster_center[i]]))  # 列出聚类后分类信息
+                print('聚类类别 %i: %s ;;聚类中心是 %s\n' % ((i + 1),str(np.where(labels == i)), cluster_center[i]))  # 列出聚类后分类信息
+                f.write('聚类类别 %i: %s ;;聚类中心是 %s\n' % ((i + 1), ', '.join(stock_name_np[labels == i]),stock_name_np[cluster_center[i]]))  # 列出聚类后分类信息
+                f.write('聚类类别 %i: %s ;;聚类中心是 %s\n' % ((i + 1),str(np.where(labels == i)), cluster_center[i]))  # 列出聚类后分类信息
+            f.close()
+        col_num = edge_model.covariance_.shape[1]
         cluster_tree_matrix = np.zeros([col_num, col_num], float)  # col_num * col_num 的矩阵！
         for leaf_node, cluster_index in enumerate(labels):
             center_node = cluster_center[cluster_index]
@@ -334,11 +341,11 @@ class TdxDataPreprocesser():
         with open(adj_address, 'wb') as f:
             pickle.dump(cluster_tree_matrix, f)
             f.close()
-        with open(self.boolean_network_data_folder + 'ap_cluster_result_dict.pickle',  'wb') as f:
+        with open(self.boolean_network_data_folder+result_save_name + '-ap_vibrate_cluster_result_dict.pickle',  'wb') as f:
             pickle.dump(self.ap_cluster_result_dict, f)
             f.close()
-        with open(self.boolean_network_data_folder + 'between_boolean_series_df.pickle', 'wb') as f:
-            pickle.dump(boolean_series, f)
+        with open(self.boolean_network_data_folder+result_save_name + '-between_vibrate_series_df.pickle', 'wb') as f:
+            pickle.dump(self.vibrate_network_np_dict['vibrate_series'], f)
             f.close()
 
     def build_nn_for_boolean_net(self):
@@ -349,12 +356,14 @@ class TdxDataPreprocesser():
 if __name__ == '__main__':
     # code_list=['000001', '000002', '600601', '000012', '600612', '600651', '000009', '000568', '600660', '000004']
     start='2021/5/30';end='2022/5/30'
+    class_code = '000300'
     do = TdxDataPreprocesser()
-    new_stock_dict = do.get_stock_list_from_internet(re_request_list=True)
-    # new_stock_dict = do.get_stock_list_from_file(re_request_list=True,filename='指数板块.txt',class_code='000016')
+    # new_stock_dict = do.get_stock_list_from_internet(re_request_list=True)
+    new_stock_dict = do.get_stock_list_from_file(re_request_list=True,filename='指数板块.txt',class_code=class_code)
     code_list = list(new_stock_dict.keys())
     print(len(code_list),code_list)
-    do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end,edge_orientation='to_leaf',result_save_name='-rzrq-')
+    do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end,edge_orientation='to_leaf',result_save_name=class_code)
+    do.pickle_to_ap_vibrate_adj_matrix(new_stock_dict, start, end,edge_orientation='to_leaf',result_save_name=class_code)
     # do.pickle_to_boolean_net_series(code_list, start, end)
     # do.tdx_data_to_pickle_files()
     talkContent("完成了完成了!")
