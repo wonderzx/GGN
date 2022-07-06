@@ -356,10 +356,10 @@ class TdxDataPreprocesser():
 if __name__ == '__main__':
     # code_list=['000001', '000002', '600601', '000012', '600612', '600651', '000009', '000568', '600660', '000004']
     start='2021/5/30';end='2022/5/30'
-    class_code = '000300'
+    class_code = 'fsls'
     do = TdxDataPreprocesser()
-    # new_stock_dict = do.get_stock_list_from_internet(re_request_list=True)
-    new_stock_dict = do.get_stock_list_from_file(re_request_list=True,filename='指数板块.txt',class_code=class_code)
+    new_stock_dict = do.get_stock_list_from_internet(re_request_list=True)
+    # new_stock_dict = do.get_stock_list_from_file(re_request_list=True,filename='指数板块.txt',class_code=class_code)
     code_list = list(new_stock_dict.keys())
     print(len(code_list),code_list)
     do.pickle_to_ap_bn_adj_matrix(new_stock_dict, start, end,edge_orientation='to_leaf',result_save_name=class_code)
